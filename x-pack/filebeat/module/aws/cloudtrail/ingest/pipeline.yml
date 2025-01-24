@@ -206,19 +206,24 @@ processors:
       field: "json.readOnly"
       target_field: "aws.cloudtrail.read_only"
       ignore_failure: true
-  - rename:
-      field: "json.resources.ARN"
-      target_field: "aws.cloudtrail.resources.arn"
+  - script:
+      lang: painless
       ignore_failure: true
-  - rename:
-      field: "json.resources.accountId"
-      target_field: "aws.cloudtrail.resources.account_id"
-      ignore_failure: true
-  - rename:
-      field: "json.resources.type"
-      target_field: "aws.cloudtrail.resources.type"
-      ignore_failure: true
-  - rename:
+      source: >-
+        Map cloudtrail = ctx.aws.cloudtrail;
+        Map resources = new HashMap();
+        cloudtrail.put("resources", resources);
+
+        if (ctx.json.resources.length > 1) {
+          cloudtrail.put("multiple_resources", true);
+        }
+
+        resources.put("arn", ctx.json.resources[0].ARN);
+        resources.put("account_id", ctx.json.resources[0].accountId);
+        resources.put("type", ctx.json.resources[0].type);
+
+        ctx.aws.cloudtrail = cloudtrail;
+- rename:
       field: "json.recipientAccountId"
       target_field: "aws.cloudtrail.recipient_account_id"
       ignore_failure: true

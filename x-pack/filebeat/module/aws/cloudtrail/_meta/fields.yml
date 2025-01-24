@@ -131,6 +131,11 @@
       type: keyword
       description: >-
         Identifies whether this operation is a read-only operation.
+    - name: multiple_resources
+      type: boolean
+      description: >-
+        Identifies whether multiple resources are referenced in this event s.t.
+        additional resources can be found in the event.original field.
     - name: resources
       type: group
       description: >-
